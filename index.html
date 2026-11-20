@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6f3ec" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="打卡小幫手" />
+    <meta name="description" content="簡單、快速的員工上下班打卡與薪資紀錄工具。" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>打卡小幫手</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/><path d="M8 3h8"/></svg>
+          </span>
+          <div>
+            <p>Attendance</p>
+            <h1>打卡小幫手</h1>
+          </div>
+        </div>
+        <button class="icon-button" id="installButton" type="button" hidden aria-label="安裝應用程式" title="安裝應用程式">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+        </button>
+      </header>
+
+      <main>
+        <section class="page active" id="clockPage" aria-labelledby="clockTab">
+          <div class="date-block">
+            <p id="todayLabel">今天</p>
+            <h2 id="liveClock">--:--</h2>
+            <span id="fullDate">載入中</span>
+          </div>
+
+          <div class="clock-card">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">現在是誰？</span>
+                <h3>選擇員工</h3>
+              </div>
+              <button class="text-button" type="button" data-go-page="employeesPage">管理員工</button>
+            </div>
+
+            <div class="employee-picker" id="employeePicker" role="listbox" aria-label="選擇員工"></div>
+            <div class="empty-state compact" id="employeeEmptyState" hidden>
+              <span>＋</span>
+              <p>還沒有員工，先新增第一位吧。</p>
+              <button class="secondary-button" type="button" data-go-page="employeesPage">新增員工</button>
+            </div>
+
+            <div class="selected-summary" id="selectedSummary" hidden>
+              <div>
+                <span>目前選擇</span>
+                <strong id="selectedEmployeeName">—</strong>
+              </div>
+              <div class="status-pill" id="selectedStatus">尚未上班</div>
+            </div>
+
+            <div class="clock-actions">
+              <button class="clock-button clock-in" id="clockInButton" type="button" disabled>
+                <span class="clock-button-icon">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="m8 12 3 3 5-6"/></svg>
+                </span>
+                <span><strong>上班打卡</strong><small>開始計算工時</small></span>
+              </button>
+              <button class="clock-button clock-out" id="clockOutButton" type="button" disabled>
+                <span class="clock-button-icon">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M8 12h8"/></svg>
+                </span>
+                <span><strong>下班打卡</strong><small>完成這次紀錄</small></span>
+              </button>
+            </div>
+          </div>
+
+          <section class="today-section">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">即時動態</span>
+                <h3>今日打卡</h3>
+              </div>
+              <span class="count-badge" id="todayCount">0 筆</span>
+            </div>
+            <div class="activity-list" id="todayActivity"></div>
+          </section>
+        </section>
+
+        <section class="page" id="employeesPage" aria-labelledby="employeesTab">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">Team</span>
+              <h2>員工管理</h2>
+              <p>新增成員並設定每小時薪資。</p>
+            </div>
+            <button class="primary-button" id="openEmployeeModal" type="button">
+              <span>＋</span> 新增員工
+            </button>
+          </div>
+          <div class="employee-list" id="employeeList"></div>
+          <div class="empty-state" id="employeeListEmpty" hidden>
+            <div class="empty-illustration">人</div>
+            <h3>建立你的團隊</h3>
+            <p>加入員工後，就能開始上下班打卡。</p>
+            <button class="primary-button" type="button" data-open-employee-modal>新增第一位員工</button>
+          </div>
+        </section>
+
+        <section class="page" id="recordsPage" aria-labelledby="recordsTab">
+          <div class="page-heading records-heading">
+            <div>
+              <span class="eyebrow">History</span>
+              <h2>工時紀錄</h2>
+              <p>查看工時與預估薪資，可下載保存。</p>
+            </div>
+            <button class="secondary-button" id="exportButton" type="button">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              下載 CSV
+            </button>
+          </div>
+
+          <div class="summary-grid">
+            <article><span>本月總工時</span><strong id="monthHours">0 小時</strong></article>
+            <article><span>本月預估薪資</span><strong id="monthPay">NT$0</strong></article>
+          </div>
+
+          <div class="record-toolbar">
+            <label>
+              <span class="sr-only">依員工篩選</span>
+              <select id="recordEmployeeFilter"><option value="all">所有員工</option></select>
+            </label>
+            <label>
+              <span class="sr-only">依月份篩選</span>
+              <input type="month" id="recordMonthFilter" />
+            </label>
+          </div>
+
+          <div class="record-list" id="recordList"></div>
+          <div class="empty-state" id="recordEmpty" hidden>
+            <div class="empty-illustration">時</div>
+            <h3>還沒有打卡紀錄</h3>
+            <p>完成一次上下班打卡後，紀錄會出現在這裡。</p>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="主要功能">
+        <button class="nav-item active" id="clockTab" type="button" data-page="clockPage">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>
+          <span>打卡</span>
+        </button>
+        <button class="nav-item" id="employeesTab" type="button" data-page="employeesPage">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-4 2.5-6 5.5-6s5 2 5.5 6M16 5.5a3 3 0 0 1 0 5.5M16 13c2.5.5 4 2.5 4.5 6"/></svg>
+          <span>員工</span>
+        </button>
+        <button class="nav-item" id="recordsTab" type="button" data-page="recordsPage">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg>
+          <span>紀錄</span>
+        </button>
+      </nav>
+    </div>
+
+    <dialog id="employeeModal" class="modal">
+      <form id="employeeForm" method="dialog">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">Employee</span>
+            <h2 id="employeeModalTitle">新增員工</h2>
+          </div>
+          <button class="icon-button close-button" id="closeEmployeeModal" type="button" aria-label="關閉">×</button>
+        </div>
+        <input type="hidden" id="employeeId" />
+        <label class="form-field">
+          <span>員工姓名</span>
+          <input id="employeeName" type="text" maxlength="30" placeholder="例如：王小明" autocomplete="off" required />
+        </label>
+        <label class="form-field">
+          <span>每小時薪資</span>
+          <div class="money-input"><b>NT$</b><input id="employeeRate" type="number" min="0" max="100000" step="1" inputmode="numeric" placeholder="190" required /></div>
+        </label>
+        <div class="avatar-choice">
+          <span>代表顏色</span>
+          <div id="colorChoices" class="color-choices"></div>
+        </div>
+        <p class="form-error" id="employeeFormError" role="alert"></p>
+        <button class="primary-button full-width" type="submit" value="save">儲存員工</button>
+      </form>
+    </dialog>
+
+    <dialog id="confirmModal" class="modal confirm-modal">
+      <div>
+        <div class="warning-icon">!</div>
+        <h2>刪除這位員工？</h2>
+        <p id="confirmMessage">既有的打卡紀錄仍會保留。</p>
+        <div class="modal-actions">
+          <button class="secondary-button" id="cancelDelete" type="button">取消</button>
+          <button class="danger-button" id="confirmDelete" type="button">刪除</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js" defer></script>
+  </body>
+</html>
